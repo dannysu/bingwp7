@@ -157,4 +157,4 @@ app = webapp2.WSGIApplication([
         ('/image/([a-z]{2}-[a-z]{2})/([0-9]{4})-([0-9]{2})-([0-9]{2}).([a-z]*)', ImageHandler),
         ('/fetch', Crawler)
     ],
-    debug=True)
+    debug=False)

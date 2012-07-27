@@ -5,6 +5,9 @@ api_version: 1
 threadsafe: yes
 
 handlers:
+- url: /robots.txt
+  static_files: files/robots.txt
+  upload: files/robots.txt
 - url: /files
   static_dir: files
 - url: /fetch
