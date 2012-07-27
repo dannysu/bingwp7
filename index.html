@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bing Wallpaper</title>
+    <meta name="viewport" content="width=1000, initial-scale=0.1">
+    <link rel="stylesheet" href="/files/style.css" type="text/css"/>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+    <script type="text/javascript">
+        var canShowPrevious = {{ show_previous }};
+        var previousUrl = "{{ previous_url|safe }}";
+    </script>
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="/files/script.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+</head>
+
+<body>
+    <div data-role="page" data-theme="d" id="mainpage">
+        <div data-role="content">
+            <div class="ui-grid-a">
+
+                {% for image in images %}
+                <div class="ui-block-{{ image.column }}">
+                    <div class="imageblock">
+                        <img id="{{ image.id }}_img" src="{{ image.url }}" class="image"/>
+                        <div id="{{ image.id }}_credit" class="imagecredit">
+                            <div class="textdiv">{{ image.credit }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if show_previous == 'true' %}
+                <div class="ui-block-a">
+                    <div class="imageblock">
+                        <div class="backimg"></div>
+                        <embed id="svgimg" src="/files/back.svg" type="image/svg+xml"/>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
