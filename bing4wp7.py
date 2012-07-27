@@ -57,16 +57,6 @@ class MainPage(webapp2.RequestHandler):
         display_images = []
 
         for image in images:
-            # Avoid duplicates
-            found = False
-            for img in display_images:
-                if img['data'] == image.data:
-                    found = True
-                    break
-
-            if found:
-                continue
-
             display_images.append({
                 'id': len(display_images) + 1,
                 'column': 'a' if len(display_images) % 2 == 0 else 'b',
@@ -108,7 +98,7 @@ class ImageHandler(webapp2.RequestHandler):
 
 class Crawler(webapp2.RequestHandler):
     urlFormat = "http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=-{0!s}&urlEncodeHeaders=true&osName=windowsphone&osVersion=7.0&orientation=480x800&deviceName=windowsphone&mkt={1}";
-    countries = ["de-de", "en-au", "en-ca", "en-gb", "en-nz", "en-us", "ja-jp", "zh-cn"]
+    countries = ["en-us", "en-au", "en-ca", "en-gb", "en-nz", "ja-jp", "zh-cn", "de-de"]
 
     def fetch(self, country):
         url = self.urlFormat.format(0, country)
@@ -134,6 +124,19 @@ class Crawler(webapp2.RequestHandler):
                 result = self.fetch(country)
 
             if result != False:
+                # Don't store duplicate images
+                images = Image.all().filter("date =", today)
+
+                found = False
+                for image in images:
+                    if image.data == result.content:
+                        found = True
+                        break
+
+                if found:
+                    self.response.out.write('dup: ' + country + '\n')
+                    continue
+
                 credit = ''
                 for header in result.headers:
                     key = header
