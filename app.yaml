@@ -7,5 +7,8 @@ threadsafe: yes
 handlers:
 - url: /files
   static_dir: files
+- url: /fetch
+  script: bing4wp7.app
+  login: admin
 - url: /.*
   script: bing4wp7.app
