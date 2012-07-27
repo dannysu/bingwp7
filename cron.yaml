@@ -1,0 +1,5 @@
+cron:
+- description: daily fetch
+  url: /fetch
+  schedule: every day 01:05
+  timezone: America/Los_Angeles
