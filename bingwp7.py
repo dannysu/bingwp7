@@ -71,7 +71,7 @@ class MainPage(webapp2.RequestHandler):
                 'id': len(display_images) + 1,
                 'column': 'a' if len(display_images) % 2 == 0 else 'b',
                 'url': '/image/'+image.country+'/'+image.date.strftime('%Y-%m-%d')+'.jpg',
-                'credit': urllib2.unquote(image.credit),
+                'credit': image.credit,
                 'data': image.data
             })
 
@@ -160,7 +160,7 @@ class Crawler(webapp2.RequestHandler):
                 image = Image(country=country,
                               date=today,
                               data=result.content,
-                              credit=value)
+                              credit=urllib2.unquote(credit).decode('utf-8'))
                 image.put()
 
                 self.response.out.write('saved: ' + country + '\n')
