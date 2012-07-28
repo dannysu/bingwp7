@@ -4,14 +4,21 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
+default_expiration: "1d"
+
 handlers:
 - url: /robots.txt
   static_files: files/robots.txt
   upload: files/robots.txt
+  expiration: "1h"
+- url: /files/SegoeWP.ttf
+  static_files: files/SegoeWP.ttf
+  upload: files/SegoeWP.ttf
+  expiration: "365d"
 - url: /files
   static_dir: files
 - url: /fetch
-  script: bing4wp7.app
+  script: bingwp7.app
   login: admin
 - url: /.*
-  script: bing4wp7.app
+  script: bingwp7.app

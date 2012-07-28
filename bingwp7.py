@@ -46,13 +46,23 @@ class MainPage(webapp2.RequestHandler):
         month = self.request.get('m')
         date = self.request.get('d')
 
-        requested_date = datetime.datetime.now(Pacific_tzinfo()).date()
+        max_age = 28800 # 8 hours
+        today = datetime.datetime.now(Pacific_tzinfo()).date()
+        requested_date = today
         if year != '' and month != '' and date != '':
             requested_date = datetime.date(int(year), int(month), int(date))
 
+        if today < requested_date:
+            max_age = 0
+        elif today > requested_date:
+            max_age = 31536000 # one year
+
         prev_date = requested_date - datetime.timedelta(days=1)
+        next_date = requested_date + datetime.timedelta(days=1)
 
         images = Image.all().filter("date =", requested_date)
+        if images.count() == 0:
+            max_age = 0
 
         display_images = []
 
@@ -75,9 +85,9 @@ class MainPage(webapp2.RequestHandler):
         }
 
         self.response.headers["Content-Type"] = "text/html"
-        self.response.headers.add_header("Expires", "Thu, 01 Dec 1994 16:00:00 GMT")
-        self.response.headers.add_header("Cache-Control", "no-cache, must-revalidate")
-
+        self.response.cache_control.no_cache = None
+        self.response.cache_control.public = True
+        self.response.cache_control.max_age = max_age
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
 
@@ -94,6 +104,9 @@ class ImageHandler(webapp2.RequestHandler):
             return
 
         self.response.headers['Content-Type'] = 'image/jpeg'
+        self.response.cache_control.no_cache = None
+        self.response.cache_control.public = True
+        self.response.cache_control.max_age = 31536000 # one year
         self.response.out.write(images[0].data)
 
 class Crawler(webapp2.RequestHandler):
