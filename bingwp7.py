@@ -3,6 +3,8 @@ import webapp2
 import datetime
 import os
 import urllib2
+import time
+from xml.dom import minidom
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
@@ -110,12 +112,21 @@ class ImageHandler(webapp2.RequestHandler):
         self.response.out.write(images[0].data)
 
 class Crawler(webapp2.RequestHandler):
-    urlFormat = "http://appserver.m.bing.net/BackgroundImageService/TodayImageService.svc/GetTodayImage?dateOffset=-{0!s}&urlEncodeHeaders=true&osName=windowsphone&osVersion=7.0&orientation=480x800&deviceName=windowsphone&mkt={1}";
+    baseUrl = "http://bing.com"
+    urlSuffix = "_768x1280.jpg"
+    urlFormat = "http://bing.com/HPImageArchive.aspx?format=xml&idx={0!s}&n=1&mbl=1&mkt={1}&input="
     countries = ["en-us", "en-au", "en-ca", "en-gb", "en-nz", "ja-jp", "zh-cn", "de-de"]
 
     def fetch(self, country):
         url = self.urlFormat.format(0, country)
         result = urlfetch.fetch(url)
+        if result.status_code == 200:
+            return result
+        else:
+            return False
+
+    def fetchImage(self, imageUrl):
+        result = urlfetch.fetch(imageUrl)
         if result.status_code == 200:
             return result
         else:
@@ -133,16 +144,30 @@ class Crawler(webapp2.RequestHandler):
 
             result = self.fetch(country)
             if result == False:
-                # Try again if first time fails
+                # Try again in 5 seconds if first time fails
+                time.sleep(5);
                 result = self.fetch(country)
 
             if result != False:
+                dom = minidom.parseString(result.content)
+
+                imageUrl = self.baseUrl + dom.getElementsByTagName("urlBase")[0].childNodes[0].data + self.urlSuffix
+                imageResult = self.fetchImage(imageUrl)
+
+                if imageResult == False:
+                    # Try again in 5 seconds if first time fails
+                    time.sleep(5);
+                    imageResult = self.fetchImage(imageUrl)
+
+                if imageResult == False:
+                    continue
+
                 # Don't store duplicate images
                 images = Image.all().filter("date =", today)
 
                 found = False
                 for image in images:
-                    if image.data == result.content:
+                    if image.data == imageResult.content:
                         found = True
                         break
 
@@ -150,17 +175,12 @@ class Crawler(webapp2.RequestHandler):
                     self.response.out.write('dup: ' + country + '\n')
                     continue
 
-                credit = ''
-                for header in result.headers:
-                    key = header
-                    if key == 'image-info-credit':
-                        value = result.headers[key]
-                        credit = value
+                credit = dom.getElementsByTagName("copyright")[0].childNodes[0].data
 
                 image = Image(country=country,
                               date=today,
-                              data=result.content,
-                              credit=urllib2.unquote(credit).decode('utf-8'))
+                              data=imageResult.content,
+                              credit=credit)
                 image.put()
 
                 self.response.out.write('saved: ' + country + '\n')
