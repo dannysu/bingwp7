@@ -4,22 +4,29 @@ $(document).bind("pageinit",function(){
     if ($('#1_credit').length > 0) {
         window.setInterval(random_flip, 5000);
     }
-});
 
-$('.image').live('click',function(event){
-    var id = $(this).attr('id');
-    flip(id.substring(0, 1));
-});
+    $('.image').on('click',function(event){
+        var id = $(this).attr('id');
+        flip(id.substring(0, 1));
+    });
 
-$('.imagecredit').live('click',function(event){
-    var id = $(this).attr('id');
-    flip(id.substring(0, 1));
-});
-
-$('.backimg').live('click',function(event){
-    if (canShowPrevious) {
-        window.location.href = previousUrl;
+    if (navigator.userAgent.match(/Windows Phone/)) {
+        $('.imagecredit').addClass('imagecredit_wp');
     }
+    else {
+        $('.imagecredit').addClass('imagecredit_non_wp');
+    }
+
+    $('.imagecredit').on('click',function(event){
+        var id = $(this).attr('id');
+        flip(id.substring(0, 1));
+    });
+
+    $('.backimg').on('click',function(event){
+        if (canShowPrevious) {
+            window.location.href = previousUrl;
+        }
+    });
 });
 
 function flip(number) {
