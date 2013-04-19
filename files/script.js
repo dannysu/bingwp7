@@ -46,11 +46,12 @@ function flip(number) {
 }
 
 function random_flip() {
-    var random_number = Math.floor(Math.random()*8+1);
+    var num_countries = 9;
+    var random_number = Math.floor(Math.random()*num_countries+1);
 
     while ($('#' + random_number + '_credit').length <= 0)
     {
-        random_number = Math.floor(Math.random()*8+1);
+        random_number = Math.floor(Math.random()*num_countries+1);
     }
 
     flip(random_number);

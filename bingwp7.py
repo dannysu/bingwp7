@@ -115,7 +115,7 @@ class Crawler(webapp2.RequestHandler):
     baseUrl = "http://bing.com"
     urlSuffix = "_768x1280.jpg"
     urlFormat = "http://bing.com/HPImageArchive.aspx?format=xml&idx={0!s}&n=1&mbl=1&mkt={1}&input="
-    countries = ["en-us", "en-au", "en-ca", "en-gb", "en-nz", "ja-jp", "zh-cn", "de-de"]
+    countries = ["en-us", "en-au", "en-ca", "en-gb", "en-nz", "ja-jp", "zh-cn", "de-de", "fr-fr"]
 
     def fetch(self, country):
         url = self.urlFormat.format(0, country)
